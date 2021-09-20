@@ -3,7 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-
+spect/*
+embs/*
 *.ckpt
 *.pth
 
@@ -131,3 +132,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+wavs/.DS_Store
