@@ -8,6 +8,7 @@ from autovc_model import Generator
 AUTOVC_PATH = '../pretrain_model/autovc.ckpt'
 SPECT_PATH = "../spect/%s"
 EMB_PATH = "../embs"
+RESULT_PATH = "../conversion"
 
 
 def pad_seq(x, base=32):
@@ -24,7 +25,7 @@ def main(src, src_spect, trg):
     device = 0 if torch.cuda.is_available() else -1
     generator = Generator(32, 256, 512, 32).eval()
     if device >= 0:
-        generator.cuda(device)
+        generator = generator.cuda(device)
     model_checkpoint = torch.load(AUTOVC_PATH, map_location='cuda:0' if device >= 0 else 'cpu')
     generator.load_state_dict(model_checkpoint['model'])
 
@@ -38,9 +39,14 @@ def main(src, src_spect, trg):
     emb_trg = torch.from_numpy(emb_trg[np.newaxis, :])
 
     if device >= 0:
-        uttr_org.cuda(device)
-        emb_org.cuda(device)
-        emb_trg.cuda(device)
+        uttr_org = uttr_org.cuda(device)
+        emb_org = emb_org.cuda(device)
+        emb_trg = emb_trg.cuda(device)
+
+    print('{}x{}'.format(src, trg))
+    print(uttr_org.shape, uttr_org[0][0][:3])
+    print(emb_org.shape, emb_org[0][0:3])
+    print(emb_trg.shape, emb_trg[0][0:3])
 
     with torch.no_grad():
         _, x_identic_psnt, _ = generator(uttr_org, emb_org, emb_trg)
@@ -50,7 +56,10 @@ def main(src, src_spect, trg):
     else:
         uttr_trg = x_identic_psnt[0, 0, :-len_pad, :].cpu().numpy()
 
-    np.save("%s->%s" % (src_spect, trg), uttr_trg)
+    print(uttr_trg.shape)
+    print(uttr_trg[0][0:3])
+
+    np.save(RESULT_PATH + "/%sx%s" % (src_spect[:-4], trg), uttr_trg)
 
 
 

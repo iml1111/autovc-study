@@ -52,7 +52,8 @@ for speaker in tqdm(sorted(subdir_list)):
 
 	_, _, file_list = next(os.walk(os.path.join(dir_name, speaker)))
 	prng = RandomState(int(speaker[1:]))
-	
+
+
 	# p111/1.wav, p111/2.wav, p111/3.wav, ... 
 	for file in sorted(file_list):
 		# wav = (M,) 1channel 16000 rate wav 기준

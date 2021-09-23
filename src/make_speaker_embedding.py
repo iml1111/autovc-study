@@ -23,7 +23,7 @@ device = 0 if torch.cuda.is_available() else -1
 # Speaker Encoder 모델 호출 및 state 불러오기
 speaker_encoder = SpeakerEncoder(dim_input=80, dim_cell=768, dim_emb=256).eval()
 if device >= 0:
-	speaker_encoder.cuda(device)
+	speaker_encoder = speaker_encoder.cuda(device)
 model_checkpoint = torch.load(SPEAKER_ENCODER_PATH, map_location="cpu")
 new_state_dict = OrderedDict()
 for key, val in model_checkpoint['model_b'].items():
@@ -38,6 +38,10 @@ print("mel-spectogram dicrectory:", dir_name)
 # p111, p112, p113, ...
 for speaker in tqdm(sorted(subdir_list)):
 	_, _, file_list = next(os.walk(os.path.join(dir_name, speaker)))
+
+	if len(file_list) < 5:
+		print("Skipped", speaker)
+		continue
 
 	embs = []
 	# p111/1.npy, p111/2.npy, p111/3.npy, ...
@@ -54,7 +58,7 @@ for speaker in tqdm(sorted(subdir_list)):
 			spect[np.newaxis, left:left+LEN_CROP, :]
 		)
 		if device >= 0:
-			crop_spect.cuda(device)
+			crop_spect = crop_spect.cuda(device)
 
 		# emb = (1, 256)
 		emb = speaker_encoder(crop_spect)

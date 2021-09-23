@@ -5,9 +5,10 @@ __pycache__/
 
 spect/*
 embs/*
+conversion/*
 *.ckpt
 *.pth
-
+src/*.wav
 # C extensions
 *.so
 
